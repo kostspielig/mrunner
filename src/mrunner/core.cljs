@@ -24,6 +24,7 @@
             [cljs.core.match :refer-macros [match]]
             [cljs.core.match]
             [clojure.string :as str]
+            [goog.events :as events]
             [mrunner.routes :as routes]))
 
 
@@ -34,20 +35,44 @@
 
 (defonce app-state
   (r/atom {:data nil
+           :game nil
            :view [:init]}))
 
-;;
-;; Views
-;; =====
-;;
+(def initial-state
+  {:key nil
+   :pos [0 0]})
+
+(defn dbg [x]
+  (println x)
+  x)
+
+
+;; 38 up , 39 right
+(defn handle-key [state key]
+  (case (.-keyCode key)
+    38 (swap! state update-in [:pos 1] - 5)
+    39 (swap! state update-in [:pos 0] + 5)
+    37 (swap! state update-in [:pos 0] - 5)
+    40 (swap! state update-in [:pos 1] + 5)
+    nil))
+
+(defn game-view [state]
+  (r/with-let [key (events/listen js/window "keydown" #(handle-key state %))]
+    [:div.game
+     "Welcome to mrunner"
+     [:div.runner {:style (let [[x y] (:pos @state)]
+                            {:left x
+                             :top y})}]]
+    (finally (events/unlistenByKey key))))
 
 (defn main-view [state]
-  (r/with-let
-    [_ (go (let [data (:body (<! (http/get "data/data.json")))]
-             (swap! state assoc-in [:data] data)))]
-    [:div#main
+  (r/with-let [game-state (r/cursor state [:game])]
+    [:div.game-wrapper
      [:h1 "mRunner"]
-     (str (:data @state))]))
+     (if @game-state
+       [game-view game-state]
+       [:button {:on-click #(reset! game-state initial-state)} "start"])]))
+
 
 (defn not-found-view []
   [:div#not-found
@@ -61,8 +86,8 @@
 
 (defn init-components! [app-state]
   (r/render-component
-   [root-view app-state]
-   (.getElementById js/document "components")))
+    [root-view app-state]
+    (.getElementById js/document "components")))
 
 
 ;;
