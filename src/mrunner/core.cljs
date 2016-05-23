@@ -40,14 +40,14 @@
 
 (def initial-state
   {:key nil
-   :pos [0 0]})
+   :pos [175 215]})
 
 (defn dbg [x]
   (println x)
   x)
 
 
-;; 38 up , 39 right
+;; 37 left, 38 up, 39 right, 40 down
 (defn handle-key [state key]
   (case (.-keyCode key)
     38 (swap! state update-in [:pos 1] - 5)
@@ -60,9 +60,12 @@
   (r/with-let [key (events/listen js/window "keydown" #(handle-key state %))]
     [:div.game
      "Welcome to mrunner"
+     [:div.sky]
+     [:div.road]
      [:div.runner {:style (let [[x y] (:pos @state)]
                             {:left x
                              :top y})}]]
+
     (finally (events/unlistenByKey key))))
 
 (defn main-view [state]

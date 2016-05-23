@@ -1,3 +1,12 @@
+
+/* imports */
+
+@import 'mixins.scss';
+
+$green: #5EBF64;
+$sky: #5EDDF2;
+$road: #61351E;
+
 body {
     color: white;
     background-color: #5EBF64;
@@ -11,10 +20,49 @@ body {
 .game {
     position: relative;
 
+    width: 800px;
+
+    .sky {
+        height: 250px;
+        width: 100%;
+        background: repeat-x url('/pic/sky.svg') $sky;
+
+        @include animation(animatedBackground 25s linear infinite);
+    }
+
+    .road {
+        height: 100px;
+        width: 100%;
+        background: repeat-x url('/pic/road.svg') $road;
+
+	@include animation(animatedBackground 7s linear infinite);
+    }
+
+    @include keyframes(animatedBackground) {
+	from { background-position: 0 0; }
+	to { background-position: -800px 0; }
+    }
+
+    .tree {
+        background: no-repeat center url('/pic/tree.svg');
+    }
+
+    .tree-big {
+        background: no-repeat center url('/pic/tree-big.svg');
+    }
+
+
     .runner {
         width: 112px;
         height: 72px;
         background: no-repeat center url('/pic/runner.svg');
+        position: absolute;
+    }
+
+    .tree {
+        width: 32px;
+        height: 48px;
+        background: no-repeat center url('/pic/tree.svg');
         position: absolute;
     }
 }
