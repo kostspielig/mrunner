@@ -40,9 +40,10 @@
 
 (def initial-state
   {:key nil
-   :pos [175 215]
+   :pos-y 0
    :pos-x 0
-   :speed 0.1
+   :speed-x 0.1
+   :speed-y 0
    :cur-time nil
    })
 
@@ -50,14 +51,14 @@
   (println x)
   x)
 
+(def jump-speed 1.6)
+(def gravity -0.009)
 
 ;; 37 left, 38 up, 39 right, 40 down
 (defn handle-key [state key]
   (case (.-keyCode key)
-    38 (swap! state update-in [:pos 1] - 5)
-    39 (swap! state update-in [:pos 0] + 5)
-    37 (swap! state update-in [:pos 0] - 5)
-    40 (swap! state update-in [:pos 1] + 5)
+    38 (when (= (:pos-y @state) 0)
+         (swap! state assoc :speed-y jump-speed))
     nil))
 
 (defn game-loop [state end]
@@ -65,7 +66,9 @@
         next-time (js/performance.now)
         delta (- next-time cur-time)]
     (when-not (nil? cur-time)
-      (swap! state update :pos-x + (* (:speed @state) delta)))
+      (swap! state update :pos-x + (* (:speed-x @state) delta))
+      (swap! state update :pos-y #(max 0 (+ % (* (:speed-y @state) delta))))
+      (swap! state update :speed-y + (* gravity delta)))
     (swap! state assoc :cur-time next-time))
   (when-not @end
     (js/requestAnimationFrame #(game-loop state end))))
@@ -78,9 +81,7 @@
      "Welcome to mrunner"
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
-     [:div.runner {:style (let [[x y] (:pos @state)]
-                            {:left x
-                             :top y})}]]
+     [:div.runner {:style {:transform (str "translateY(-" (:pos-y @state) "px)")}}]]
 
     (finally (events/unlistenByKey key)
              (reset! end true))))
