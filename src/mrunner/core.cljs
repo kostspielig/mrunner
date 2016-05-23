@@ -45,6 +45,7 @@
    :speed-x 0.1
    :speed-y 0
    :cur-time nil
+   :down false
    })
 
 (defn dbg [x]
@@ -59,7 +60,14 @@
   (case (.-keyCode key)
     38 (when (= (:pos-y @state) 0)
          (swap! state assoc :speed-y jump-speed))
+    40 (swap! state assoc :down true)
     nil))
+
+(defn handle-key-up [state key]
+  (case (.-keyCode key)
+    40 (swap! state assoc :down false)
+    nil))
+
 
 (defn game-loop [state end]
   (let [{:keys [cur-time]} @state
@@ -75,15 +83,17 @@
 
 (defn game-view [state]
   (r/with-let [end (atom false)
-               key (events/listen js/window "keydown" #(handle-key state %))
+               keys [(events/listen js/window "keydown" #(handle-key state %))
+                     (events/listen js/window "keyup" #(handle-key-up state %))]
                loop (js/requestAnimationFrame #(game-loop state end))]
     [:div.game
      "Welcome to mrunner"
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
-     [:div.runner {:style {:transform (str "translateY(-" (:pos-y @state) "px)")}}]]
+     [:div.runner {:class (when (:down @state) "down")
+                   :style {:transform (str "translateY(-" (:pos-y @state) "px)")}}]]
 
-    (finally (events/unlistenByKey key)
+    (finally (dorun (map events/unlistenByKey keys))
              (reset! end true))))
 
 (defn main-view [state]

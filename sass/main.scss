@@ -50,6 +50,10 @@ body {
         position: absolute;
         top: 215px;
         left: 215px;
+
+        &.down {
+            background-image: url('/pic/runner-down.svg');
+        }
     }
 
     .tree {

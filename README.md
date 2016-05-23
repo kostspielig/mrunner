@@ -1,7 +1,7 @@
 mrunner
 ========
 
-> FIXME
+Fun game in ClojureScript
 
 Development
 -----------
