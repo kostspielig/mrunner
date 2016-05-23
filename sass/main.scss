@@ -26,21 +26,12 @@ body {
         height: 250px;
         width: 100%;
         background: repeat-x url('/pic/sky.svg') $sky;
-
-        @include animation(animatedBackground 25s linear infinite);
     }
 
     .road {
         height: 100px;
         width: 100%;
         background: repeat-x url('/pic/road.svg') $road;
-
-	@include animation(animatedBackground 7s linear infinite);
-    }
-
-    @include keyframes(animatedBackground) {
-	from { background-position: 0 0; }
-	to { background-position: -800px 0; }
     }
 
     .tree {

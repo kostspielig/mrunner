@@ -40,7 +40,11 @@
 
 (def initial-state
   {:key nil
-   :pos [175 215]})
+   :pos [175 215]
+   :pos-x 0
+   :speed 0.1
+   :cur-time nil
+   })
 
 (defn dbg [x]
   (println x)
@@ -56,17 +60,30 @@
     40 (swap! state update-in [:pos 1] + 5)
     nil))
 
+(defn game-loop [state end]
+  (let [{:keys [cur-time]} @state
+        next-time (js/performance.now)
+        delta (- next-time cur-time)]
+    (when-not (nil? cur-time)
+      (swap! state update :pos-x + (* (:speed @state) delta)))
+    (swap! state assoc :cur-time next-time))
+  (when-not @end
+    (js/requestAnimationFrame #(game-loop state end))))
+
 (defn game-view [state]
-  (r/with-let [key (events/listen js/window "keydown" #(handle-key state %))]
+  (r/with-let [end (atom false)
+               key (events/listen js/window "keydown" #(handle-key state %))
+               loop (js/requestAnimationFrame #(game-loop state end))]
     [:div.game
      "Welcome to mrunner"
-     [:div.sky]
-     [:div.road]
+     [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
+     [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:style (let [[x y] (:pos @state)]
                             {:left x
                              :top y})}]]
 
-    (finally (events/unlistenByKey key))))
+    (finally (events/unlistenByKey key)
+             (reset! end true))))
 
 (defn main-view [state]
   (r/with-let [game-state (r/cursor state [:game])]
