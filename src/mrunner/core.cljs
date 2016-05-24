@@ -42,19 +42,27 @@
   {:key nil
    :pos-y 0
    :pos-x 0
-   :speed-x 0.1
+   :speed-x 0.4
    :speed-y 0
    :cur-time nil
    :down false
    :obstacles []
    })
 
+(def obstacle-types
+  [{:type "normal" :width 32 :height 48 :pos-y 220 :pos-x nil}
+   {:type "big" :width 40 :height 56 :pos-y 220 :pos-x nil}
+   {:type "bird" :width 77 :height 66 :pos-y 100 :pos-x nil}
+   {:type "bird-small" :width 100 :height 60 :pos-y 100 :pos-x nil}])
+
 (defn dbg [x]
   (println x)
   x)
 
-(def jump-speed 1.6)
-(def gravity -0.009)
+(def game-width 800)
+(def jump-speed 1)
+(def gravity -0.003)
+(def runner-offset 215)
 
 ;; 37 left, 38 up, 39 right, 40 down
 (defn handle-key [state key]
@@ -69,10 +77,13 @@
     40 (swap! state assoc :down false)
     nil))
 
-(defn update-obstacles [obstacles]
+
+(defn update-obstacles [{:keys [obstacles pos-x] :as state}]
   (if (< (count obstacles) 1)
-    (conj obstacles {:type "normal"})
-    obstacles))
+    (update state :obstacles conj (assoc (rand-nth obstacle-types) :pos (+ pos-x game-width)))
+    (update state :obstacles
+            (fn [obstacles]
+              (filter #(> (:pos %) (- pos-x (:width %))) obstacles)))))
 
 (defn game-loop [state end]
   (let [{:keys [cur-time]} @state
@@ -82,7 +93,7 @@
       (swap! state update :pos-x + (* (:speed-x @state) delta))
       (swap! state update :pos-y #(max 0 (+ % (* (:speed-y @state) delta))))
       (swap! state update :speed-y + (* gravity delta))
-      (swap! state update :obstacles update-obstacles))
+      (swap! state update-obstacles))
     (swap! state assoc :cur-time next-time))
   (when-not @end
     (js/requestAnimationFrame #(game-loop state end))))
@@ -98,10 +109,16 @@
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:class (when (:down @state) "down")
-                   :style {:transform (str "translateY(-" (:pos-y @state) "px)")}}]
+                   :style {:transform (str "translateY(-" (:pos-y @state) "px)"
+                                           "translateX(" runner-offset "px)")}}]
      (when (count (:obstacles @state))
-       (for [[idx obstacle] (map-indexed vector (:obstacles @state))]
-         ^{:key idx} [:div.tree {:class (:type obstacle)}]))]
+       (doall (for [obstacle (:obstacles @state)]
+         ^{:key (:pos obstacle)}
+         [:div.tree {:class (:type obstacle)
+                     :style {:transform (str "translateX(" (- (:pos obstacle)
+                                                              (:pos-x @state)) "px)")
+                             :width (:width obstacle)
+                             :height (:height obstacle)}}])))]
     (finally (dorun (map events/unlistenByKey keys))
              (reset! end true))))
 

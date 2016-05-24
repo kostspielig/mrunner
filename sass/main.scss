@@ -1,15 +1,15 @@
 
 /* imports */
-
 @import 'mixins.scss';
 
+$dark: #333;
 $green: #5EBF64;
 $sky: #5EDDF2;
 $road: #61351E;
 
 body {
     color: white;
-    background-color: #5EBF64;
+    background-color: $dark;
 }
 
 .game-wrapper {
@@ -19,7 +19,7 @@ body {
 
 .game {
     position: relative;
-
+    overflow: hidden;
     width: 800px;
 
     .sky {
@@ -41,7 +41,6 @@ body {
         background: no-repeat center url('/pic/runner.svg');
         position: absolute;
         top: 215px;
-        left: 215px;
 
         &.down {
             background-image: url('/pic/runner-down.svg');
@@ -49,11 +48,8 @@ body {
     }
 
     .tree {
-        width: 32px;
-        height: 48px;
         position: absolute;
-        top: 215px;
-        left: 800px;
+        top: 220px;
 
         &.normal {
             background: no-repeat center url('/pic/tree.svg');
@@ -61,6 +57,16 @@ body {
 
         &.big {
             background: no-repeat center url('/pic/tree-big.svg');
+        }
+
+        &.bird {
+            top: 150px;
+            background: no-repeat center url('/pic/bird.svg');
+        }
+
+        &.bird-small {
+            top: 170px;
+            background: no-repeat center url('/pic/bird-small.svg');
         }
     }
 
