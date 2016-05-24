@@ -34,14 +34,6 @@ body {
         background: repeat-x url('/pic/road.svg') $road;
     }
 
-    .tree {
-        background: no-repeat center url('/pic/tree.svg');
-    }
-
-    .tree-big {
-        background: no-repeat center url('/pic/tree-big.svg');
-    }
-
 
     .runner {
         width: 112px;
@@ -59,9 +51,20 @@ body {
     .tree {
         width: 32px;
         height: 48px;
-        background: no-repeat center url('/pic/tree.svg');
         position: absolute;
+        top: 215px;
+        left: 800px;
+
+        &.normal {
+            background: no-repeat center url('/pic/tree.svg');
+        }
+
+        &.big {
+            background: no-repeat center url('/pic/tree-big.svg');
+        }
     }
+
+
 }
 
 

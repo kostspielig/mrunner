@@ -46,6 +46,7 @@
    :speed-y 0
    :cur-time nil
    :down false
+   :obstacles []
    })
 
 (defn dbg [x]
@@ -68,6 +69,10 @@
     40 (swap! state assoc :down false)
     nil))
 
+(defn update-obstacles [obstacles]
+  (if (< (count obstacles) 1)
+    (conj obstacles {:type "normal"})
+    obstacles))
 
 (defn game-loop [state end]
   (let [{:keys [cur-time]} @state
@@ -76,7 +81,8 @@
     (when-not (nil? cur-time)
       (swap! state update :pos-x + (* (:speed-x @state) delta))
       (swap! state update :pos-y #(max 0 (+ % (* (:speed-y @state) delta))))
-      (swap! state update :speed-y + (* gravity delta)))
+      (swap! state update :speed-y + (* gravity delta))
+      (swap! state update :obstacles update-obstacles))
     (swap! state assoc :cur-time next-time))
   (when-not @end
     (js/requestAnimationFrame #(game-loop state end))))
@@ -86,13 +92,16 @@
                keys [(events/listen js/window "keydown" #(handle-key state %))
                      (events/listen js/window "keyup" #(handle-key-up state %))]
                loop (js/requestAnimationFrame #(game-loop state end))]
+
     [:div.game
      "Welcome to mrunner"
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:class (when (:down @state) "down")
-                   :style {:transform (str "translateY(-" (:pos-y @state) "px)")}}]]
-
+                   :style {:transform (str "translateY(-" (:pos-y @state) "px)")}}]
+     (when (count (:obstacles @state))
+       (for [[idx obstacle] (map-indexed vector (:obstacles @state))]
+         ^{:key idx} [:div.tree {:class (:type obstacle)}]))]
     (finally (dorun (map events/unlistenByKey keys))
              (reset! end true))))
 
