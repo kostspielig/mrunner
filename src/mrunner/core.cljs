@@ -92,18 +92,6 @@
             (fn [obstacles]
               (filter #(> (:pos-x %) (- pos-x (:width %))) obstacles)))))
 
-(defn in-segment? [x p0 p1]
-  (and (<= x p1) (<= p0 x)))
-
-(defn in-square? [x0 y0 x y w h]
-  (and (in-segment? x0 x (+ x w))
-       (in-segment? y0 y (+ y h))))
-
-(defn square-intersect?-bad [x0 y0 w0 h0
-                         x1 y1 w1 h1]
-  (or (in-square? x0 y0 x1 y1 w1 h1)
-      (in-square? x1 y1 x0 y0 w0 h0)))
-
 (defn square-intersect? [x0 y0 w0 h0
                          x1 y1 w1 h1]
   (and (< x0 (+ x1 w1))
