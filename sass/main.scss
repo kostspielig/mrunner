@@ -13,8 +13,31 @@ body {
 }
 
 .game-wrapper {
-    margin: 3em 1em;
-    h1 { }
+    font-family: "Lucida Console", Monaco, monospace;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button.start {
+        border: none;
+        background-color: $sky;
+        height: 60px;
+        width: 120px;
+        cursor: pointer;
+        color: white;
+        font-size: 1.1em;
+    }
+
+    button.restart {
+        border: none;
+        background: transparent;
+        color: tomato;
+        display: block;
+        font-size: 0.6em;
+        margin: 0 auto;
+        cursor: pointer;
+    }
 }
 
 .game {
@@ -22,6 +45,13 @@ body {
     overflow: hidden;
     width: 800px;
 
+    .pause, .game-over {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2em;
+    }
     .sky {
         height: 250px;
         width: 100%;

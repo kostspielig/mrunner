@@ -48,6 +48,7 @@
    :down false
    :obstacles []
    :pause false
+   :game-over false
    })
 
 (def obstacle-types
@@ -77,6 +78,10 @@
     38 (when (= (:pos-y @state) 0)
          (swap! state assoc :speed-y jump-speed))
     40 (swap! state assoc :down true)
+    32 (if (:game-over @state)
+         (reset! state initial-state)
+         (when (= (:pos-y @state) 0)
+           (swap! state assoc :speed-y jump-speed)))
     80 (swap! state update :pause not)
     nil))
 
@@ -110,12 +115,12 @@
   (let [{:keys [cur-time]} @state
         next-time (js/performance.now)
         delta (- next-time cur-time)]
-    (when-not (or (nil? cur-time) (:pause @state))
+    (when-not (or (nil? cur-time) (:pause @state) (:game-over @state))
       (swap! state update :pos-x + (* (:speed-x @state) delta))
       (swap! state update :pos-y #(max 0 (+ % (* (:speed-y @state) delta))))
       (swap! state update :speed-y + (* gravity delta))
       (swap! state update-obstacles)
-      (when (detect-collision @state) (println "ooooops")))
+      (when (detect-collision @state) (swap! state assoc :game-over true)))
     (swap! state assoc :cur-time next-time))
   (when-not @end
     (js/requestAnimationFrame #(game-loop state end))))
@@ -127,7 +132,9 @@
                loop (js/requestAnimationFrame #(game-loop state end))]
 
     [:div.game
-     "Welcome to mrunner"
+     (when (and (:pause @state) (not (:game-over @state))) [:div.pause "PAUSED"])
+     (when (:game-over @state) [:div.game-over "GAME OVER"
+                                [:button.restart {:on-click #(reset! state initial-state)} "restart"]])
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:class (when (:down @state) "down")
@@ -147,11 +154,11 @@
 
 (defn main-view [state]
   (r/with-let [game-state (r/cursor state [:game])]
+    [:h1 "mRunner"]
     [:div.game-wrapper
-     [:h1 "mRunner"]
      (if @game-state
        [game-view game-state]
-       [:button {:on-click #(reset! game-state initial-state)} "start"])]))
+       [:button.start {:on-click #(reset! game-state initial-state)} "start"])]))
 
 
 (defn not-found-view []
