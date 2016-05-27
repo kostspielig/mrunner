@@ -38,10 +38,10 @@ body {
     .runner {
         width: 112px;
         height: 72px;
-        background: no-repeat center url('/pic/runner.svg');
+        background: no-repeat url('/pic/runner.svg');
+        background-position: 100% 100%;
         position: absolute;
-        top: 215px;
-
+        bottom: 0;
         &.down {
             background-image: url('/pic/runner-down.svg');
         }
@@ -49,23 +49,17 @@ body {
 
     .tree {
         position: absolute;
-        top: 220px;
-
+        bottom: 0;
         &.normal {
             background: no-repeat center url('/pic/tree.svg');
         }
-
         &.big {
             background: no-repeat center url('/pic/tree-big.svg');
         }
-
         &.bird {
-            top: 150px;
             background: no-repeat center url('/pic/bird.svg');
         }
-
         &.bird-small {
-            top: 170px;
             background: no-repeat center url('/pic/bird-small.svg');
         }
     }

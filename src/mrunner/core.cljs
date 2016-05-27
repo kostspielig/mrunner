@@ -50,10 +50,10 @@
    })
 
 (def obstacle-types
-  [{:type "normal" :width 32 :height 48 :pos-y 220 :pos-x nil}
-   {:type "big" :width 40 :height 56 :pos-y 220 :pos-x nil}
-   {:type "bird" :width 77 :height 66 :pos-y 100 :pos-x nil}
-   {:type "bird-small" :width 100 :height 60 :pos-y 100 :pos-x nil}])
+  [{:type "normal" :width 32 :height 48 :pos-y 90 :pos-x nil}
+   {:type "big" :width 40 :height 56 :pos-y 90 :pos-x nil}
+   {:type "bird" :width 77 :height 66 :pos-y 150 :pos-x nil}
+   {:type "bird-small" :width 42 :height 41 :pos-y 150 :pos-x nil}])
 
 (defn dbg [x]
   (println x)
@@ -109,14 +109,15 @@
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:class (when (:down @state) "down")
-                   :style {:transform (str "translateY(-" (:pos-y @state) "px)"
+                   :style {:transform (str "translateY(-" (+ (:pos-y @state) floor-y) "px) "
                                            "translateX(" runner-offset "px)")}}]
      (when (count (:obstacles @state))
        (doall (for [obstacle (:obstacles @state)]
-         ^{:key (:pos obstacle)}
+         ^{:key (:pos-x obstacle)}
          [:div.tree {:class (:type obstacle)
-                     :style {:transform (str "translateX(" (- (:pos obstacle)
-                                                              (:pos-x @state)) "px)")
+                     :style {:transform (str "translateX(" (- (:pos-x obstacle)
+                                                              (:pos-x @state)) "px) "
+                                             "translateY(-" (:pos-y obstacle) "px)")
                              :width (:width obstacle)
                              :height (:height obstacle)}}])))]
     (finally (dorun (map events/unlistenByKey keys))
