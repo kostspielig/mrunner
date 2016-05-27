@@ -47,6 +47,7 @@
    :cur-time nil
    :down false
    :obstacles []
+   :pause false
    })
 
 (def obstacle-types
@@ -59,17 +60,24 @@
   (println x)
   x)
 
+(defn dbg- [x msg]
+  (println msg x)
+  x)
+
+(def runner {:width 112 :height 72})
+(def floor-y 85)
 (def game-width 800)
 (def jump-speed 1)
-(def gravity -0.003)
+(def gravity -0.0038)
 (def runner-offset 215)
 
-;; 37 left, 38 up, 39 right, 40 down
+;; 38 up, 40 down, 80 p
 (defn handle-key [state key]
   (case (.-keyCode key)
     38 (when (= (:pos-y @state) 0)
          (swap! state assoc :speed-y jump-speed))
     40 (swap! state assoc :down true)
+    80 (swap! state update :pause not)
     nil))
 
 (defn handle-key-up [state key]
@@ -77,23 +85,49 @@
     40 (swap! state assoc :down false)
     nil))
 
-
 (defn update-obstacles [{:keys [obstacles pos-x] :as state}]
   (if (< (count obstacles) 1)
-    (update state :obstacles conj (assoc (rand-nth obstacle-types) :pos (+ pos-x game-width)))
+    (update state :obstacles conj (assoc (rand-nth obstacle-types) :pos-x (+ pos-x game-width)))
     (update state :obstacles
             (fn [obstacles]
-              (filter #(> (:pos %) (- pos-x (:width %))) obstacles)))))
+              (filter #(> (:pos-x %) (- pos-x (:width %))) obstacles)))))
+
+(defn in-segment? [x p0 p1]
+  (and (<= x p1) (<= p0 x)))
+
+(defn in-square? [x0 y0 x y w h]
+  (and (in-segment? x0 x (+ x w))
+       (in-segment? y0 y (+ y h))))
+
+(defn square-intersect?-bad [x0 y0 w0 h0
+                         x1 y1 w1 h1]
+  (or (in-square? x0 y0 x1 y1 w1 h1)
+      (in-square? x1 y1 x0 y0 w0 h0)))
+
+(defn square-intersect? [x0 y0 w0 h0
+                         x1 y1 w1 h1]
+  (and (< x0 (+ x1 w1))
+       (> (+ x0 w0) x1)
+       (< y0 (+ y1 h1))
+       (> (+ y0 h0) y1)))
+
+(defn detect-collision [{:keys [obstacles pos-x pos-y down] :as state}]
+  (let [obstacle (first obstacles)]
+    (square-intersect? (+ pos-x runner-offset) (+ pos-y floor-y)
+                       (:width runner) (if down 47 (:height runner))
+                       (:pos-x obstacle) (:pos-y obstacle)
+                       (:width obstacle) (:height obstacle))))
 
 (defn game-loop [state end]
   (let [{:keys [cur-time]} @state
         next-time (js/performance.now)
         delta (- next-time cur-time)]
-    (when-not (nil? cur-time)
+    (when-not (or (nil? cur-time) (:pause @state))
       (swap! state update :pos-x + (* (:speed-x @state) delta))
       (swap! state update :pos-y #(max 0 (+ % (* (:speed-y @state) delta))))
       (swap! state update :speed-y + (* gravity delta))
-      (swap! state update-obstacles))
+      (swap! state update-obstacles)
+      (when (detect-collision @state) (println "ooooops")))
     (swap! state assoc :cur-time next-time))
   (when-not @end
     (js/requestAnimationFrame #(game-loop state end))))
