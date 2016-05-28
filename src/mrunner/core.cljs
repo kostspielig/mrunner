@@ -28,6 +28,18 @@
             [mrunner.routes :as routes]))
 
 
+;; Localstorage methods
+(defn set-item!
+  "Set `key' in browser's localStorage to `val`."
+  [key val]
+  (.setItem (.-localStorage js/window) key val))
+
+(defn get-item
+  "Returns value of `key' from browser's localStorage."
+  [key]
+  (.getItem (.-localStorage js/window) key))
+
+
 ;;
 ;;  Application state
 ;;  =================
@@ -36,6 +48,7 @@
 (defonce app-state
   (r/atom {:data nil
            :game nil
+           :max-score (or (get-item "runner-max-score") 0)
            :view [:init]}))
 
 (def initial-state
@@ -119,7 +132,7 @@
       (swap! state update :score + 10)
       (swap! state assoc-in [:obstacles 0 :scored] true))))
 
-(defn game-loop [state end]
+(defn game-loop [state end max-score]
   (let [{:keys [cur-time]} @state
         next-time (js/performance.now)
         delta (- next-time cur-time)]
@@ -129,22 +142,25 @@
       (swap! state update :speed-y + (* gravity delta))
       (swap! state update-obstacles)
       (update-score state)
-      (when (detect-collision @state) (swap! state assoc :game-over true)))
+      (when (detect-collision @state)
+        (swap! state assoc :game-over true)
+        (swap! max-score max (:score @state))
+        (set-item! "runner-max-score" @max-score)))
     (swap! state assoc :cur-time next-time))
   (when-not @end
-    (js/requestAnimationFrame #(game-loop state end))))
+    (js/requestAnimationFrame #(game-loop state end max-score))))
 
-(defn game-view [state]
+(defn game-view [state max-score]
   (r/with-let [end (atom false)
                keys [(events/listen js/window "keydown" #(handle-key state %))
                      (events/listen js/window "keyup" #(handle-key-up state %))]
-               loop (js/requestAnimationFrame #(game-loop state end))]
+               loop (js/requestAnimationFrame #(game-loop state end max-score))]
 
     [:div.game
      (when (and (:pause @state) (not (:game-over @state))) [:div.pause "PAUSED"])
      (when (:game-over @state) [:div.game-over "GAME OVER"
                                 [:button.restart {:on-click #(reset! state initial-state)} "restart"]])
-     [:div.score (:score @state)]
+     [:div.score "HI " @max-score " / " (:score @state)]
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:class (when (:down @state) "down")
@@ -163,11 +179,12 @@
              (reset! end true))))
 
 (defn main-view [state]
-  (r/with-let [game-state (r/cursor state [:game])]
+  (r/with-let [game-state (r/cursor state [:game])
+               max-score (r/cursor state [:max-score])]
     [:h1 "mRunner"]
     [:div.game-wrapper
      (if @game-state
-       [game-view game-state]
+       [game-view game-state max-score]
        [:button.start {:on-click #(reset! game-state initial-state)} "start"])]))
 
 
