@@ -52,6 +52,11 @@ body {
         transform: translate(-50%, -50%);
         font-size: 2em;
     }
+    .score {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
     .sky {
         height: 250px;
         width: 100%;

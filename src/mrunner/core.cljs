@@ -49,13 +49,14 @@
    :obstacles []
    :pause false
    :game-over false
+   :score 0
    })
 
 (def obstacle-types
-  [{:type "normal" :width 32 :height 48 :pos-y 90 :pos-x nil}
-   {:type "big" :width 40 :height 56 :pos-y 90 :pos-x nil}
-   {:type "bird" :width 77 :height 66 :pos-y 150 :pos-x nil}
-   {:type "bird-small" :width 42 :height 41 :pos-y 150 :pos-x nil}])
+  [{:type "normal" :width 32 :height 48 :pos-y 90 :pos-x nil :scored false}
+   {:type "big" :width 40 :height 56 :pos-y 90 :pos-x nil :scored false}
+   {:type "bird" :width 77 :height 66 :pos-y 150 :pos-x nil :scored false}
+   {:type "bird-small" :width 42 :height 41 :pos-y 150 :pos-x nil :scored false}])
 
 (defn dbg [x]
   (println x)
@@ -95,7 +96,7 @@
     (update state :obstacles conj (assoc (rand-nth obstacle-types) :pos-x (+ pos-x game-width)))
     (update state :obstacles
             (fn [obstacles]
-              (filter #(> (:pos-x %) (- pos-x (:width %))) obstacles)))))
+              (vec (filter #(> (:pos-x %) (- pos-x (:width %))) obstacles))))))
 
 (defn square-intersect? [x0 y0 w0 h0
                          x1 y1 w1 h1]
@@ -111,6 +112,13 @@
                        (:pos-x obstacle) (:pos-y obstacle)
                        (:width obstacle) (:height obstacle))))
 
+(defn update-score [state]
+  (let [{:keys [obstacles pos-x]} @state
+        obstacle (first obstacles)]
+    (when (and obstacle (> (+ pos-x runner-offset) (+ (:pos-x obstacle) (:width obstacle))) (not (:scored obstacle)))
+      (swap! state update :score + 10)
+      (swap! state assoc-in [:obstacles 0 :scored] true))))
+
 (defn game-loop [state end]
   (let [{:keys [cur-time]} @state
         next-time (js/performance.now)
@@ -120,6 +128,7 @@
       (swap! state update :pos-y #(max 0 (+ % (* (:speed-y @state) delta))))
       (swap! state update :speed-y + (* gravity delta))
       (swap! state update-obstacles)
+      (update-score state)
       (when (detect-collision @state) (swap! state assoc :game-over true)))
     (swap! state assoc :cur-time next-time))
   (when-not @end
@@ -135,6 +144,7 @@
      (when (and (:pause @state) (not (:game-over @state))) [:div.pause "PAUSED"])
      (when (:game-over @state) [:div.game-over "GAME OVER"
                                 [:button.restart {:on-click #(reset! state initial-state)} "restart"]])
+     [:div.score (:score @state)]
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
      [:div.runner {:class (when (:down @state) "down")
