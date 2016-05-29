@@ -120,8 +120,8 @@
 
 (defn detect-collision [{:keys [obstacles pos-x pos-y down] :as state}]
   (let [obstacle (first obstacles)]
-    (square-intersect? (+ pos-x runner-offset) (+ pos-y floor-y)
-                       (:width runner) (if down 47 (:height runner))
+    (square-intersect? (+ pos-x runner-offset 30) (+ pos-y floor-y)
+                       (- (:width runner) 60) (if down 47 (:height runner))
                        (:pos-x obstacle) (:pos-y obstacle)
                        (:width obstacle) (:height obstacle))))
 
