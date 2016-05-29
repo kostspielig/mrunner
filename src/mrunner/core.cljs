@@ -157,9 +157,6 @@
                loop (js/requestAnimationFrame #(game-loop state end max-score))]
 
     [:div.game
-     (when (and (:pause @state) (not (:game-over @state))) [:div.pause "PAUSED"])
-     (when (:game-over @state) [:div.game-over "GAME OVER"
-                                [:button.restart {:on-click #(reset! state initial-state)} "restart"]])
      [:div.score "HI " @max-score " / " (:score @state)]
      [:div.sky {:style {:background-position-x (/ (- (:pos-x @state )) 5)}}]
      [:div.road {:style {:background-position-x (- (:pos-x @state ))}}]
@@ -174,7 +171,10 @@
                                                               (:pos-x @state)) "px) "
                                              "translateY(-" (:pos-y obstacle) "px)")
                              :width (:width obstacle)
-                             :height (:height obstacle)}}])))]
+                             :height (:height obstacle)}}])))
+     (when (and (:pause @state) (not (:game-over @state))) [:div.pause "PAUSED"])
+     (when (:game-over @state) [:div.game-over "GAME OVER"
+                                [:button.restart {:on-click #(reset! state initial-state)} "restart"]])]
     (finally (dorun (map events/unlistenByKey keys))
              (reset! end true))))
 

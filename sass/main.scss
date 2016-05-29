@@ -6,14 +6,15 @@ $dark: #333;
 $green: #5EBF64;
 $sky: #5EDDF2;
 $road: #61351E;
+$game-font: 'VT323', "Lucida Console", Monaco, monospace;
 
 body {
     color: white;
     background-color: $dark;
+    font-family: $game-font;
 }
 
 .game-wrapper {
-    font-family: "Lucida Console", Monaco, monospace;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -21,22 +22,25 @@ body {
 
     button.start {
         border: none;
-        background-color: $sky;
+        background-color: tomato;//$sky;
         height: 60px;
         width: 120px;
         cursor: pointer;
         color: white;
         font-size: 1.1em;
+        font-family: $game-font;
     }
 
     button.restart {
         border: none;
         background: transparent;
-        color: tomato;
         display: block;
+        color: #ff99aa;
+        //font-weight: bold;
         font-size: 0.6em;
         margin: 0 auto;
         cursor: pointer;
+        font-family: $game-font;
     }
 }
 
@@ -50,10 +54,15 @@ body {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        font-size: 2em;
+        font-size: 4em;
+        //font-weight: bold;
+        text-transform: lowercase;
+        border: 8px dashed white;
+        padding: 20px;
     }
     .score {
         position: absolute;
+        font-size: 1.5em;
         top: 20px;
         right: 20px;
     }
@@ -74,7 +83,7 @@ body {
         width: 112px;
         height: 72px;
         background: no-repeat url('/pic/runner.svg');
-        background-position: 100% 100%;
+        background-position: center 100%;
         position: absolute;
         bottom: 0;
         &.down {
