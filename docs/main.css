@@ -1,0 +1,127 @@
+/* imports */
+/* line 11, ../../sass/main.scss */
+body {
+  color: white;
+  background-color: #333;
+  font-family: "VT323", "Lucida Console", Monaco, monospace;
+}
+
+/* line 17, ../../sass/main.scss */
+.game-wrapper {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* line 23, ../../sass/main.scss */
+.game-wrapper button.start {
+  border: none;
+  background-color: tomato;
+  height: 60px;
+  width: 120px;
+  cursor: pointer;
+  color: white;
+  font-size: 1.1em;
+  font-family: "VT323", "Lucida Console", Monaco, monospace;
+}
+/* line 34, ../../sass/main.scss */
+.game-wrapper button.restart {
+  border: none;
+  background: transparent;
+  display: block;
+  color: #ff99aa;
+  font-size: 0.6em;
+  margin: 0 auto;
+  cursor: pointer;
+  font-family: "VT323", "Lucida Console", Monaco, monospace;
+}
+
+/* line 47, ../../sass/main.scss */
+.game {
+  position: relative;
+  overflow: hidden;
+  width: 800px;
+}
+/* line 52, ../../sass/main.scss */
+.game .pause, .game .game-over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 4em;
+  text-transform: lowercase;
+  border: 8px dashed white;
+  padding: 20px;
+}
+/* line 63, ../../sass/main.scss */
+.game .score {
+  position: absolute;
+  font-size: 1.5em;
+  top: 20px;
+  right: 20px;
+}
+/* line 69, ../../sass/main.scss */
+.game .sky {
+  height: 250px;
+  width: 100%;
+  background: repeat-x url("pic/sky.svg") #5EDDF2;
+}
+/* line 75, ../../sass/main.scss */
+.game .road {
+  height: 100px;
+  width: 100%;
+  background: repeat-x url("pic/road.svg") #61351E;
+}
+/* line 82, ../../sass/main.scss */
+.game .runner {
+  width: 112px;
+  height: 72px;
+  background: no-repeat url("pic/runner.svg");
+  background-position: center 100%;
+  position: absolute;
+  bottom: 0;
+}
+/* line 89, ../../sass/main.scss */
+.game .runner.down {
+  background-image: url("pic/runner-down.svg");
+}
+/* line 94, ../../sass/main.scss */
+.game .tree {
+  position: absolute;
+  bottom: 0;
+}
+/* line 97, ../../sass/main.scss */
+.game .tree.normal {
+  background: no-repeat center url("pic/tree.svg");
+}
+/* line 100, ../../sass/main.scss */
+.game .tree.big {
+  background: no-repeat center url("pic/tree-big.svg");
+}
+/* line 103, ../../sass/main.scss */
+.game .tree.bird {
+  background: no-repeat center url("pic/bird.svg");
+}
+/* line 106, ../../sass/main.scss */
+.game .tree.bird-small {
+  background: no-repeat center url("pic/bird-small.svg");
+}
+
+/* line 115, ../../sass/main.scss */
+a, a:hover,
+a:active,
+a:focus {
+  outline: 0;
+}
+
+/* line 121, ../../sass/main.scss */
+.hidden {
+  display: none;
+}
+
+/* line 125, ../../sass/main.scss */
+.clear {
+  width: 100%;
+  clear: both !important;
+  display: block;
+}
