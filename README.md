@@ -3,6 +3,8 @@ mrunner
 
 Fun game in ClojureScript
 
+[Try the game!](http://kostspielig.github.io/mrunner/)
+
 Development
 -----------
 
